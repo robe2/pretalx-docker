@@ -16,9 +16,10 @@ This repository contains a docker-compose setup as well as an [ansible](https://
 
 * Edit ``conf/pretalx.cfg`` and fill in your own values (→ [configuration
   documentation](https://docs.pretalx.org/en/latest/administrator/configure.html))
-* Edit ``docker-compose.yml`` and remove the complete section with ``ports: - "80:80"`` from the file (if you go with
-  traefic as reverse proxy) or change the line to ``ports: - "127.0.0.1:8355:80"`` (if you use nginx). **Change the
-  database password.**
+* Edit ``docker-compose.yml``
+    * If you plan to run a nginx within docker-compose remove the complete section with ``ports: - "80:80"`` and unremark out the ``web`` container section.
+      Make sure to edit the deployment\docker\nginx.conf to suit your needs
+    * **Change the database password.**
 * If you don't want to use docker volumes, create directories for the persistent data and make them read-writeable for
   the userid 999 and the groupid 999. Change ``pretalx-redis``, ``pretalx-db``, ``pretalx-data`` and ``pretalx-public`` to the corresponding
   directories you've chosen.
@@ -28,7 +29,7 @@ This repository contains a docker-compose setup as well as an [ansible](https://
   is located at ``reverse-proxy-examples/docker-compose``. You can also find a few words on an nginx configuration at
   ``reverse-proxy-examples/nginx``
 * Make sure you serve all requests for the `/static/` and `/media/` paths (when `debug=false`). See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
-* Optional: Some of the Gunicorn parameters can be adjusted via environment viariables:
+* Optional: Some of the Gunicorn parameters can be adjusted via environment variables:
   * To adjust the number of [Gunicorn workers](https://docs.gunicorn.org/en/stable/settings.html#workers), provide
   the container with `GUNICORN_WORKERS` environment variable.
   * `GUNICORN_MAX_REQUESTS` and `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting.
