@@ -8,36 +8,36 @@ services:
       - redis
       - db
     environment:
-      # Hint: Make sure you serve all requests for the `/static/` and `/media/` paths when debug is False. See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
       PRETALX_FILESYSTEM_MEDIA: /public/media
       PRETALX_FILESYSTEM_STATIC: /public/static
-    ports:
-      - "80:80"
+    ## You can unremark out the ports section if you only need dev testing
+    ## Make sure to remove the web section or change the port if you remark this out
+    #ports:
+    #  - "80:80"
     volumes: 
       - ./conf/pretalx.cfg:/etc/pretalx/pretalx.cfg:ro
       - pretalx-data:/data
       - pretalx-public:/public
+
+  # Hint: This container is for production use needed to serve static and media files
+  # See README.md and reverse-proxy-examples for proxying this for TLS/SSL
+  web:
+    image: nginx:latest
+    container_name: pretalx-web
+    restart: unless-stopped
+    # remove the ports section if you plan to use docker based traefik for tls/ssl endpoint
+    ports:
+      - "80:80"
+    depends_on:
+      - pretalx
+    # this section is needed if you plan to use traefik as your tls/ssl end point
     labels:
        traefik.docker.network: "pretalxdocker"
        traefik.enable: "true"
-
-  # Hint: Unremark this section, if you want to run the webserver within docker network.
-  # Make sure to also remark out the "80:80" in the pretalx container section
-  # See README for more details
-
-  # web:
-  #   image: nginx:latest
-  #   container_name: pretalx-web
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   depends_on:
-  #     - pretalx
-  #   volumes:
-  #     - ./deployment/docker/nginx.conf:/etc/nginx/nginx.conf
-  #     - pretalx-data:/data
-  #     - pretalx-public:/public
+    volumes:
+      - ./deployment/docker/nginx.conf:/etc/nginx/nginx.conf
+      - pretalx-data:/data
+      - pretalx-public:/public
 
   db:
     image: mysql:latest
@@ -51,8 +51,6 @@ services:
       MYSQL_PASSWORD: veryunsecureplschange
       MYSQL_RANDOM_ROOT_PASSWORD: "1"
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
-
-
 
   redis:
     image: redis:latest

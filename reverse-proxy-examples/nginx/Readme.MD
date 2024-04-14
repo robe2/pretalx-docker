@@ -1,5 +1,14 @@
 # NGINX Config example
 
+Change the port section of the web container to below, note the 8355 port
+as that is the port that will be exposed for proxy.
+You can use a different port other than 8355,
+but make sure the proxy_pass line matches whatever port you choose.
+
+```
+    ports:
+      - "8355:80"
+```
 Your config could look like this:
 
 ```
